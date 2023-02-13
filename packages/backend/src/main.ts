@@ -1,17 +1,22 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import express from 'express';
 import * as path from 'path';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const app = express();
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.get('/api', (req, res) => {
   res.send({ message: 'Welcome to backend!' });
+});
+
+app.get('/feed', async (req, res) => {
+  const posts = await prisma.post.findMany({
+    where: { published: true },
+    include: { author: true },
+  });
+  res.json(posts);
 });
 
 const port = process.env.PORT || 3333;
